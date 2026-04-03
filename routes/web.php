@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [ProductController::class, 'index'])->name('home');
@@ -21,6 +22,10 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
     Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
+});
+
+Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
+    Route::resource('products', AdminProductController::class);
 });
 
 require __DIR__.'/auth.php';
