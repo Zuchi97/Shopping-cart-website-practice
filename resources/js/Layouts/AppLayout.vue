@@ -4,6 +4,7 @@ import { computed } from 'vue'
 
 const page = usePage()
 const auth = computed(() => page.props.auth)
+const isAdmin = computed(() => page.props.auth?.user?.is_admin)
 const cartCount = computed(() => {
     const cart = page.props.cart || {}
     return Object.keys(cart).length
@@ -26,7 +27,7 @@ const cartCount = computed(() => {
                             </span>
                         </Link>
                         <Link :href="route('orders.index')" class="hover:text-gray-400 transition">訂單</Link>
-                        <Link :href="route('admin.products.index')"
+                        <Link v-if="isAdmin" :href="route('admin.products.index')"
                             class="hover:text-gray-400 transition text-gray-400">後台</Link>
                         <Link :href="route('logout')" method="post" as="button"
                             class="hover:text-gray-400 transition">登出</Link>
