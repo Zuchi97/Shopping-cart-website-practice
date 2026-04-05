@@ -12,16 +12,13 @@ const cartCount = computed(() => {
 
 <template>
     <div class="min-h-screen bg-[#FAF8F5] font-sans">
-        <!-- Navbar -->
         <nav class="fixed top-0 w-full bg-[#FAF8F5]/90 backdrop-blur-sm z-50 border-b border-gray-100">
             <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-                <Link :href="route('home')" class="font-serif text-2xl tracking-tight text-[#1C1C1C]">
-                    Shop
-                </Link>
+                <Link :href="route('home')" class="font-serif text-2xl tracking-tight text-[#1C1C1C]">Shop</Link>
                 <div class="flex items-center gap-8 text-sm text-[#1C1C1C]">
                     <Link :href="route('home')" class="hover:text-gray-400 transition">商品</Link>
                     <template v-if="auth.user">
-                        <Link :href="route('cart.index')" class="hover:text-gray-400 transition relative">
+                        <Link :href="route('cart.index')" class="hover:text-gray-400 transition">
                             購物車
                             <span v-if="cartCount > 0"
                                 class="ml-1 bg-[#1C1C1C] text-white text-xs rounded-full px-2 py-0.5">
@@ -29,6 +26,8 @@ const cartCount = computed(() => {
                             </span>
                         </Link>
                         <Link :href="route('orders.index')" class="hover:text-gray-400 transition">訂單</Link>
+                        <Link :href="route('admin.products.index')"
+                            class="hover:text-gray-400 transition text-gray-400">後台</Link>
                         <Link :href="route('logout')" method="post" as="button"
                             class="hover:text-gray-400 transition">登出</Link>
                     </template>
@@ -43,7 +42,6 @@ const cartCount = computed(() => {
             </div>
         </nav>
 
-        <!-- Flash Message -->
         <div v-if="$page.props.flash?.success"
             class="fixed top-20 right-6 bg-[#1C1C1C] text-white text-sm px-6 py-3 z-50 shadow-lg">
             {{ $page.props.flash.success }}
@@ -53,12 +51,8 @@ const cartCount = computed(() => {
             {{ $page.props.flash.error }}
         </div>
 
-        <!-- Content -->
-        <main class="pt-16">
-            <slot />
-        </main>
+        <main class="pt-16"><slot /></main>
 
-        <!-- Footer -->
         <footer class="mt-24 border-t border-gray-100 py-12 text-center text-sm text-gray-400">
             © 2025 Shop. All rights reserved.
         </footer>
