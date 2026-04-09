@@ -26,3 +26,10 @@ services:
     volumes:
       - './docker/mysql:/var/lib/mysql'
     restart: unless-stopped
+
+  node:
+    image: node:20-alpine
+    working_dir: /var/www/html
+    volumes:
+      - '/persist/eddy/shopping:/var/www/html'
+    command: sh -c "npm install && npm run build"
