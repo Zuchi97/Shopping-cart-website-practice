@@ -6,8 +6,6 @@ services:
     volumes:
       - '/persist/eddy/shopping:/var/www/html'
     environment:
-      - PUID=${UID:-1000}
-      - PGID=${GID:-1000}
       - APP_ENV=production
       - APP_DEBUG=false
       - DB_CONNECTION=mysql
@@ -31,22 +29,27 @@ services:
 
   setup-backend:
     image: serversideup/php:8.3-cli
-    environment:
-      - PUID=${UID:-1000}
-      - PGID=${GID:-1000}
+    user: "0:0"
     volumes:
       - '/persist/eddy/shopping:/var/www/html'
     command: >
       sh -c "
       composer install &&
       cp -n .env.example .env || true &&
-      grep -q '^APP_KEY=base64' .env || php artisan key:generate
+      grep -q '^APP_KEY=base64' .env || php artisan key:generate &&
+      chown -R $$(stat -c '%u:%g' artisan) . || true &&
+      chmod -R 777 storage bootstrap/cache || true
       "
 
   setup-frontend:
     image: node:20-alpine
-    user: "${UID:-node}:${GID:-node}"
+    user: "0:0"
     working_dir: /var/www/html
     volumes:
       - '/persist/eddy/shopping:/var/www/html'
-    command: sh -c "npm install && npm run build"
+    command: >
+      sh -c "
+      npm install &&
+      npm run build &&
+      chown -R $$(stat -c '%u:%g' package.json) node_modules public || true
+      "
