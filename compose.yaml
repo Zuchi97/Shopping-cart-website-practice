@@ -15,7 +15,10 @@ services:
       - DB_USERNAME=root
       - DB_PASSWORD=${DB_PASSWORD:-secret}
     depends_on:
-      - mysql
+      mysql:
+        condition: service_started
+      setup-backend:
+        condition: service_completed_successfully
     restart: unless-stopped
 
   mysql:
@@ -24,12 +27,27 @@ services:
       - MYSQL_ROOT_PASSWORD=${DB_PASSWORD:-secret}
       - MYSQL_DATABASE=${DB_DATABASE:-laravel}
     volumes:
-      - './docker/mysql:/var/lib/mysql'
+      - '/persist/eddy/mysql:/var/lib/mysql'
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${DB_PASSWORD:-secret}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     restart: unless-stopped
 
   setup-backend:
     image: serversideup/php:8.3-cli
     user: "0:0"
+    environment:
+      - DB_CONNECTION=mysql
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_DATABASE=${DB_DATABASE:-laravel}
+      - DB_USERNAME=root
+      - DB_PASSWORD=${DB_PASSWORD:-secret}
+    depends_on:
+      mysql:
+        condition: service_healthy
     volumes:
       - '/persist/eddy/shopping:/var/www/html'
     command: >
@@ -37,6 +55,7 @@ services:
       composer install &&
       cp -n .env.example .env || true &&
       grep -q '^APP_KEY=base64' .env || php artisan key:generate &&
+      php artisan migrate --force &&
       chown -R $$(stat -c '%u:%g' artisan) . || true &&
       chmod -R 777 storage bootstrap/cache || true
       "
